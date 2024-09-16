@@ -20,3 +20,13 @@ sequelize model:create --name Usuarios --attributes nombre:string,correo:string
 ```
 sequelize db:migrate
 ```
+
+## Seeder
+```
+sequelize seed:create --name users
+```
+
+## Execute Seeder
+```
+sequelize db:seed:all
+```
