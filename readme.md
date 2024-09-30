@@ -21,6 +21,11 @@ sequelize model:create --name Usuarios --attributes nombre:string,correo:string
 sequelize db:migrate
 ```
 
+## Migracion Undo
+```
+sequelize-cli db:migrate:undo:all
+```
+
 ## Seeder
 ```
 sequelize seed:create --name users

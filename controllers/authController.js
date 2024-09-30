@@ -14,6 +14,7 @@ exports.login = async(req, res) =>{
         const user = await Usuarios.findOne({ where:{ correo } })
 
         if(!user) return res.status(404).send({message:'Credenciales inválidas'})
+            console.log(password)
 
         if(!bcrypt.compareSync(password, user.password)) return res.status(401).send({message:'Credenciales inválidas'})
 

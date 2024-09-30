@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   };
   Tareas.init({
     nombre: DataTypes.STRING,
-    etapaId: DataTypes.INTEGER,
+    moduloEtapaId: DataTypes.INTEGER,
     estadoId: DataTypes.INTEGER,
     usuarioIngresa: DataTypes.INTEGER,
     usuarioModifica: DataTypes.INTEGER

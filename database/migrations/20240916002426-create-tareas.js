@@ -11,10 +11,10 @@ module.exports = {
       nombre: {
         type: Sequelize.STRING
       },
-      etapaId: {
+      moduloEtapaId: {
         type: Sequelize.INTEGER,
         references: {
-          model:'Etapas',
+          model:'ModuloEtapas',
           key: 'id'
         },
       },

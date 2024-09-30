@@ -5,7 +5,9 @@ router.get('/home', (req, res) =>{
 })
 
 router.use('/', require('./auth'))
-/*router.use('/users', require('./user'))
-router.use('/chats', require('./chat'))*/
+router.use('/usuarios', require('./usuario'))
+router.use('/proyectos', require('./proyectos'))
+router.use('/etapas', require('./etapas'))
+router.use('/sistemas', require('./sistemas'))
 
 module.exports = router
