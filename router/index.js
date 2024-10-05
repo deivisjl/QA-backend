@@ -9,5 +9,6 @@ router.use('/usuarios', require('./usuario'))
 router.use('/proyectos', require('./proyectos'))
 router.use('/etapas', require('./etapas'))
 router.use('/sistemas', require('./sistemas'))
+router.use('/estados', require('./estados'))
 
 module.exports = router

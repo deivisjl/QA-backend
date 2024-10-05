@@ -1,5 +1,4 @@
-const Sistemas = require('../models').Sistemas
-const Proyectos = require('../models').Proyectos
+const Estados = require('../models').Estados
 const bcrypt = require('bcrypt')
 const {sequelize} = require('../models')
 
@@ -9,16 +8,16 @@ exports.create = async(req,res) =>{
 
     try
     {    
-        const {nombre,proyecto,usuario} = req.body
+        const {nombre,usuario,color} = req.body
 
-        const sistema = await Sistemas.build({
+        const estados = await Estados.build({
             nombre:nombre,
-            proyectoId:proyecto,
+            color:color,
             usuarioIngresa:usuario,
             estado:1
         }, { transaction: t });
 
-        sistema.save()
+        estados.save()
 
         await t.commit();
 
@@ -36,13 +35,9 @@ exports.list = async(req, res)=>{
 
     try 
     {
-        const sistemas = await Sistemas.findAll({
-            where:{estado:1}, 
-            include:{model:Proyectos,attributes:['nombre']},
-            attributes:['id','nombre']
-            });
+        const estados = await Estados.findAll({where:{estado:1}, attributes:['id','nombre','color']});
 
-        return res.status(200).json(sistemas)
+        return res.status(200).json(estados)
     } 
     catch (e) 
     {
@@ -55,9 +50,9 @@ exports.search = async(req, res)=>{
     {
         const {id} = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}, attributes:['nombre','proyectoId']});
+        const estados = await Estados.findOne({where:{id:id}, attributes:['nombre','color']});
 
-        return res.status(200).json(sistema)
+        return res.status(200).json(estados)
     }
     catch (e) 
     {
@@ -68,16 +63,16 @@ exports.search = async(req, res)=>{
 exports.update = async(req, res)=>{
     try 
     {
-        const {id,nombre,proyecto,usuario} = req.body
+        const {id,nombre,color,usuario} = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}});
+        const estados = await Estados.findOne({where:{id:id}});
 
-        if(!sistema)
+        if(!estados)
         {
             return res.status(422).send({message:'No se encontró el registro'})
         }
 
-        await sistema.update({nombre:nombre,proyectoId:proyecto,usuarioModifica:usuario})
+        await estados.update({nombre:nombre,color:color,usuarioModifica:usuario})
 
         return res.status(200).json({message:"Registro actualizado correctamente"})
     }
@@ -92,14 +87,14 @@ exports.eliminar = async(req, res)=>{
     {
         const {id,usuario} = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}});
+        const estados = await Estados.findOne({where:{id:id}});
 
-        if(!sistema)
+        if(!estados)
         {
             return res.status(422).send({message:'No se encontró el registro'})
         }
 
-        await sistema.update({estado:2,usuarioModifica:usuario})
+        await estados.update({estado:2,usuarioModifica:usuario})
 
         return res.status(200).json({message:"Registro eliminado correctamente"})
     }
