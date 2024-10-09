@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  broker_service:
+    build:
+      context: .
+      dockerfile: dockerfile
+    image: backend:1.0
+    expose:
+      - 8080
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - brokernet
+
+networks:
+  brokernet:
