@@ -15,5 +15,19 @@ services:
     networks:
       - brokernet
 
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=qa
+      - MYSQL_PASSWORD=root
+    volumes:
+      - ./data:/var/lib/mysql
+    networks:
+      - brokernet     
+
 networks:
   brokernet:
