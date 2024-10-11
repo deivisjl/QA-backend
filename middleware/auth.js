@@ -12,16 +12,12 @@ exports.auth = (req, res, next) =>{
     try
     {
         jwt.verify(token, config.appKey,(err, user)=>{
-            console.log('hola mundo: ' + err + user)
             if(err){
-                console.log('hola mundo2: ' + err + user)
                 return res.status(401).json({error: err})
             }
             
             req.user = user
         }) 
-
-        console.log('hola mundo3: ' + err + user)
 
         next()
     }
