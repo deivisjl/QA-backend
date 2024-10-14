@@ -1,7 +1,39 @@
 const Sistemas = require('../models').Sistemas
 const Proyectos = require('../models').Proyectos
+const Usuario = require('../models').Usuarios
+const Etapas = require('../models').Etapas
+const Modulos = require('../models').Modulos
+const ModulosEtapas = require('../models').ModuloEtapas
 const bcrypt = require('bcrypt')
 const {sequelize} = require('../models')
+
+exports.etapas = async(req, res)=>{
+
+    try 
+    {
+        const etapas = await Etapas.findAll({where:{estado:1}, attributes:['id','nombre']});
+
+        return res.status(200).json(etapas)
+    } 
+    catch (e) 
+    {
+        return res.status(500).send({message:e.message})
+    }
+}
+
+exports.usuarios = async(req, res)=>{
+
+    try 
+    {
+        const usuarios = await Usuario.findAll({where:{estado:1}, attributes:['id','nombre']});
+
+        return res.status(200).json(usuarios)
+    } 
+    catch (e) 
+    {
+        return res.status(500).send({message:e.message})
+    }
+}
 
 exports.detail = async(req, res) => {
     try 
@@ -24,16 +56,33 @@ exports.create = async(req,res) =>{
 
     try
     {    
-        const {nombre,proyecto,usuario} = req.body
+        const {nombre,asignado,sistema,etapas,usuario} = req.body
 
-        const sistema = await Sistemas.build({
+        const requerimiento = await Modulos.create({
             nombre:nombre,
-            proyectoId:proyecto,
+            usuarioId:asignado,
             usuarioIngresa:usuario,
+            sistemaId:sistema,
             estado:1
         }, { transaction: t });
 
-        sistema.save()
+        requerimiento.save()
+
+        if(etapas.length < 1)
+        {
+            throw ('Debe seleccionar al menos una etapa')
+        }
+
+        etapas.forEach(item => {
+            const etapa = ModulosEtapas.build({
+                moduloId:requerimiento.id,
+                etapaId:parseInt(item.id),
+                estado:1,
+                usuarioIngresa:usuario
+            }, { transaction: t })
+
+            etapa.save()
+        });
 
         await t.commit();
 
@@ -51,13 +100,13 @@ exports.list = async(req, res)=>{
 
     try 
     {
-        const sistemas = await Sistemas.findAll({
+        const modulos = await Modulos.findAll({
             where:{estado:1}, 
-            include:{model:Proyectos,attributes:['nombre']},
-            attributes:['id','nombre']
+            include:{model:Usuario,attributes:['nombre']},
+            attributes:['id','nombre']  
             });
 
-        return res.status(200).json(sistemas)
+        return res.status(200).json(modulos)
     } 
     catch (e) 
     {
@@ -68,11 +117,15 @@ exports.list = async(req, res)=>{
 exports.search = async(req, res)=>{
     try 
     {
-        const {id} = req.body
+        const {id, requerimiento} = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}, attributes:['nombre','proyectoId']});
+        const modulo = await Modulos.findOne({
+            where:{id:requerimiento,sistemaId:id},
+            include:{model:ModulosEtapas,attributes:['etapaId']},
+            attributes:['nombre','usuarioId']
+        });
 
-        return res.status(200).json(sistema)
+        return res.status(200).json(modulo)
     }
     catch (e) 
     {
@@ -107,14 +160,14 @@ exports.eliminar = async(req, res)=>{
     {
         const {id,usuario} = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}});
+        const modulo = await Modulos.findOne({where:{id:id}});
 
-        if(!sistema)
+        if(!modulo)
         {
             return res.status(422).send({message:'No se encontró el registro'})
         }
 
-        await sistema.update({estado:2,usuarioModifica:usuario})
+        await modulo.update({estado:2,usuarioModifica:usuario})
 
         return res.status(200).json({message:"Registro eliminado correctamente"})
     }

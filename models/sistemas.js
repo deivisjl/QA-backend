@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       this.belongsTo(models.Proyectos, {foreignKey: 'proyectoId'})
+      this.hasMany(models.Modulos, {foreignKey: 'sistemaId'})
     }
   };
   Sistemas.init({

@@ -13,6 +13,7 @@ class Usuarios extends Model {
      */
     static associate(models) {
       // define association here
+      this.hasMany(models.Modulos, {foreignKey: 'usuarioId'})
     }
   };
   Usuarios.init({
