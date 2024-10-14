@@ -17,6 +17,7 @@ services:
       MYSQL_ROOT_PASSWORD: admin
       SERVICE_TAGS: dev
       SERVICE_NAME: mysqldb
+      MYSQL_ROOT_HOST: '%'
     networks:
       - internalnet
 
