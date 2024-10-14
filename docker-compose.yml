@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./data:/var/lib/mysql
+      - ./mysqlconf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
     ports:
       - 3306:3306
     expose:
