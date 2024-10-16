@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsTo(models.Modulos, {foreignKey: 'moduloId'})
       this.belongsTo(models.Etapas, {foreignKey: 'etapaId'})
+      this.hasMany(models.Tareas, {foreignKey: 'moduloEtapaId'})
     }
   };
   ModuloEtapas.init({
