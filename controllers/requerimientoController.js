@@ -100,8 +100,12 @@ exports.list = async(req, res)=>{
 
     try 
     {
+        const {id} = req.body
+
+        console.log(id)
+
         const modulos = await Modulos.findAll({
-            where:{estado:1}, 
+            where:{estado:1,sistemaId:id}, 
             include:{model:Usuario,attributes:['nombre']},
             attributes:['id','nombre']  
             });
