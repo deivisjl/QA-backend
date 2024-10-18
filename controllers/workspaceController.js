@@ -2,8 +2,9 @@ const Proyectos = require('../models').Proyectos
 const Sistemas = require('../models').Sistemas
 const Modulos = require('../models').Modulos
 const ModuloEtapas = require('../models').ModuloEtapas
-const Etapas = require('../models').Etapas
 const Tareas = require('../models').Tareas
+const Etapas = require('../models').Etapas
+const Estados = require('../models').Estados
 const Usuarios = require('../models').Usuarios
 const bcrypt = require('bcrypt')
 const {sequelize} = require('../models')
@@ -46,7 +47,8 @@ exports.detalleModulo = async(req,res) => {
             include:[{
                 model:Etapas, where:{estado:1},attributes:['id','nombre']
             },{
-                model:Tareas, where:{estadoId:1},attributes:['id','nombre'], required:false
+                model:Tareas,attributes:['id','nombre'], 
+                include:[{model:Estados,attributes:['nombre','color']}], required:false
             }],
             attributes:['id']
         })
@@ -55,6 +57,36 @@ exports.detalleModulo = async(req,res) => {
     }
     catch(e)
     {
+        return res.status(500).send({message:e.message})
+    }
+}
+
+exports.guardarTarea = async(req, res) => {
+    
+    const t = await sequelize.transaction();
+
+    try
+    {
+        const {nombre,estado, moduloEtapa, usuario} = req.body
+
+        const tarea = await Tareas.create({
+            nombre:nombre,
+            estadoId:estado,
+            moduloEtapaId:moduloEtapa,
+            usuarioIngresa:usuario,
+            estado:1
+        }, { transaction: t });
+
+        tarea.save()
+
+        await t.commit();
+
+        return res.status(200).send({message:"Tarea agregada correctamente"})
+    }
+    catch(e)
+    {
+        await t.rollback();
+
         return res.status(500).send({message:e.message})
     }
 }
