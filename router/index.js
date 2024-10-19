@@ -11,6 +11,7 @@ router.use('/etapas', require('./etapas'))
 router.use('/estados', require('./estados'))
 router.use('/sistemas', require('./sistemas'))
 router.use('/requerimiento', require('./requerimiento'))
+router.use('/tareas', require('./tareas'))
 router.use('/workspace', require('./workspace'))
 
 module.exports = router
