@@ -20,12 +20,14 @@ exports.list = async(req, res)=>{
                     {model:Sistemas,where:{estado:1},attributes:['id','nombre'],
                     include:[
                         {model:Modulos, where:{estado:1},
-                        attributes:['id','nombre'], 
+                        attributes:['id','nombre','estadoId'], 
                         include:[{
                             model:ModuloEtapas, where:{estado:1},attributes:['id'], required: false
                         },{
                             model:Usuarios, attributes:['id','nombre'], required: false
-                        },],
+                        },{
+                            model:Estados, attributes:['nombre','color'], required: false
+                        }],
                         required: false}
                     ], required: false },
                 ],
@@ -42,8 +44,16 @@ exports.list = async(req, res)=>{
 exports.detalleModulo = async(req,res) => {
     try
     {
+        const {data} = req.body
+        
+        var info =  [];
+
+        data.forEach(item => {
+            info.push(item.id)            
+        });
+
         const detalles = await ModuloEtapas.findAll({
-            where:{id:{[Op.in]:[1,2]}},
+            where:{id:{[Op.in]:info}},
             include:[{
                 model:Etapas, where:{estado:1},attributes:['id','nombre']
             },{

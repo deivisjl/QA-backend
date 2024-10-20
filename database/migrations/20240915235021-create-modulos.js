@@ -15,6 +15,13 @@ module.exports = {
           key: 'id'
         },
       },
+      estadoId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model:'Estados',
+          key: 'id'
+        },
+      },
       usuarioId: {
         type: Sequelize.INTEGER,
         references: {

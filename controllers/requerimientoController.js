@@ -56,13 +56,14 @@ exports.create = async(req,res) =>{
 
     try
     {    
-        const {nombre,asignado,sistema,etapas,usuario} = req.body
+        const {nombre,asignado,sistema,etapas,usuario, estadoId} = req.body
 
         const requerimiento = await Modulos.create({
             nombre:nombre,
             usuarioId:asignado,
             usuarioIngresa:usuario,
             sistemaId:sistema,
+            estadoId:estadoId,
             estado:1
         }, { transaction: t });
 
@@ -102,8 +103,6 @@ exports.list = async(req, res)=>{
     {
         const {id} = req.body
 
-        console.log(id)
-
         const modulos = await Modulos.findAll({
             where:{estado:1,sistemaId:id}, 
             include:{model:Usuario,attributes:['nombre']},
@@ -126,7 +125,7 @@ exports.search = async(req, res)=>{
         const modulo = await Modulos.findOne({
             where:{id:requerimiento,sistemaId:id},
             include:{model:ModulosEtapas,attributes:['etapaId']},
-            attributes:['nombre','usuarioId']
+            attributes:['nombre','usuarioId','estadoId']
         });
 
         return res.status(200).json(modulo)
@@ -137,19 +136,65 @@ exports.search = async(req, res)=>{
     }
 }
 
-exports.update = async(req, res)=>{
+exports.getEstado = async(req, res)=>{
     try 
     {
-        const {id,nombre,proyecto,usuario} = req.body
+        const { id } = req.body
 
-        const sistema = await Sistemas.findOne({where:{id:id}});
+        const modulo = await Modulos.findOne({
+            where:{id:id},            
+            attributes:['estadoId']
+        });
 
-        if(!sistema)
+        return res.status(200).json(modulo)
+    }
+    catch (e) 
+    {
+        return res.status(500).send({message:e.message})
+    }
+}
+
+exports.setEstado = async(req, res)=>{
+    try 
+    {
+        const {id,estado,usuario} = req.body
+        
+        const modulo = await Modulos.findOne({
+            where:{id:id},
+            attributes:['id','estadoId','usuarioModifica']
+        });
+
+        if(!modulo)
         {
             return res.status(422).send({message:'No se encontró el registro'})
         }
 
-        await sistema.update({nombre:nombre,proyectoId:proyecto,usuarioModifica:usuario})
+        await modulo.update({estadoId:estado,usuarioModifica:usuario})
+
+        return res.status(200).json({message:"Registro actualizado correctamente"})
+    }
+    catch (e) 
+    {
+        return res.status(500).send({message:e.message})
+    }
+}
+
+exports.update = async(req, res)=>{
+    try 
+    {
+        const {id,nombre,estado,usuario,usuarioId} = req.body
+        
+        const modulo = await Modulos.findOne({
+            where:{id:id},
+            attributes:['id','nombre','usuarioId','estadoId','usuarioModifica']
+        });
+
+        if(!modulo)
+        {
+            return res.status(422).send({message:'No se encontró el registro'})
+        }
+
+        await modulo.update({nombre:nombre,estadoId:estado,usuarioId:usuarioId,usuarioModifica:usuario})
 
         return res.status(200).json({message:"Registro actualizado correctamente"})
     }
