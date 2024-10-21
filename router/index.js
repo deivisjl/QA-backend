@@ -15,4 +15,7 @@ router.use('/tareas', require('./tareas'))
 router.use('/workspace', require('./workspace'))
 router.use('/reportes', require('./reportes'))
 
+router.use('/permisos', require('./permisos'))
+router.use('/roles', require('./roles'))
+
 module.exports = router
