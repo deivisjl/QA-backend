@@ -14,6 +14,7 @@ class Usuarios extends Model {
     static associate(models) {
       // define association here
       this.hasMany(models.Modulos, {foreignKey: 'usuarioId'})
+      this.hasMany(models.UsuarioRoles, {foreignKey: 'usuarioId'})
     }
   };
   Usuarios.init({

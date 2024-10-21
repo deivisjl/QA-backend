@@ -1,4 +1,6 @@
 const Usuario = require('../models').Usuarios
+const UsuarioRoles = require('../models').UsuarioRoles
+const Roles = require('../models').Roles
 const bcrypt = require('bcrypt')
 const {sequelize} = require('../models')
 
@@ -8,9 +10,9 @@ exports.create = async(req,res) =>{
 
     try
     {    
-        const {nombre,correo,password} = req.body
+        const {nombre,correo,password,roles} = req.body
 
-        const usuario = await Usuario.build({
+        const usuario = await Usuario.create({
             nombre:nombre,
             correo:correo,
             password: password,
@@ -18,6 +20,16 @@ exports.create = async(req,res) =>{
         }, { transaction: t });
 
         usuario.save()
+
+        roles.forEach(item => {
+            const rol = UsuarioRoles.build({
+                usuarioId:usuario.id,
+                rolId:parseInt(item.id),
+                estado:1,
+            }, { transaction: t })
+
+            rol.save()
+        });
 
         await t.commit();
 
@@ -35,7 +47,15 @@ exports.list = async(req, res)=>{
 
     try 
     {
-        const usuarios = await Usuario.findAll({where:{estado:1}, attributes:['id','nombre','correo','estado']});
+        const usuarios = await Usuario.findAll({
+            where:{estado:1}, 
+            include:[{
+                model:UsuarioRoles,
+                include:[{model:Roles,attributes:['nombre'],required:false}],
+                attributes:['id'],required:false
+            }],
+            attributes:['id','nombre','correo','estado']}
+        );
 
         return res.status(200).json(usuarios)
     } 
@@ -61,23 +81,45 @@ exports.search = async(req, res)=>{
 }
 
 exports.update = async(req, res)=>{
+
+    const t = await sequelize.transaction();
+
     try 
     {
-        const {id,nombre} = req.body
+        const {id,nombre,roles} = req.body
 
-        const usuario = await Usuario.findOne({where:{id:id}});
+        const usuario = await Usuario.findOne({where:{id:id},attributes:['id','nombre']});
 
         if(!usuario)
         {
             return res.status(422).send({message:'No se encontró el registro'})
         }
 
-        await usuario.update({nombre:nombre})
+        usuario.nombre = nombre
+        usuario.save()
+
+        await UsuarioRoles.destroy({
+            where:{usuarioId:usuario.id}
+        })
+
+        roles.forEach(item => {
+            const rol = UsuarioRoles.build({
+                usuarioId:usuario.id,
+                rolId:parseInt(item.id),
+                estado:1
+            }, { transaction: t })
+
+            rol.save()
+        });
+
+        await t.commit();
 
         return res.status(200).json({message:"Registro actualizado correctamente"})
     }
     catch (e) 
     {
+        await t.rollback();
+
         return res.status(500).send({message:e.message})
     }
 }
